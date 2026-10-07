@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 import requests
 import snowflake.connector
 from cryptography.hazmat.backends import default_backend
@@ -92,14 +93,14 @@ def charger_donnees_dans_table(curseur_bd, nom_fichier_stage: str):
     """Copie les données du stage vers la table YELLOW_TRIPDATA avec le bon format."""
     print("[ÉTAPE 4] Chargement des données dans la table (COPY INTO)...")
 
-    # Le SELECT permet de nettoyer et typer la donnée à la volée pendant le chargement
+    # Le SELECT nettoie, type la donnée à la volée et corrige l'échelle des dates
     commande_copy_into = f"""
     COPY INTO YELLOW_TRIPDATA
     FROM (
         SELECT
             $1:VendorID::INT,
-            $1:tpep_pickup_datetime::TIMESTAMP_NTZ,
-            $1:tpep_dropoff_datetime::TIMESTAMP_NTZ,
+            ($1:tpep_pickup_datetime::NUMBER / 1000000)::TIMESTAMP_NTZ,
+            ($1:tpep_dropoff_datetime::NUMBER / 1000000)::TIMESTAMP_NTZ,
             $1:passenger_count::INT,
             $1:trip_distance::FLOAT,
             $1:RatecodeID::INT,
