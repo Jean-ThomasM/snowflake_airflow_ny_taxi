@@ -56,6 +56,11 @@ def pipeline_chargement():
         )
         hook.run(requete_put)
         print("Fichier envoyé sur le stage Snowflake.")
+        
+        # Suppression des anciennes données de ce fichier pour éviter les doublons en cas de re-run
+        requete_delete = f"DELETE FROM NYC_TAXI.RAW.YELLOW_TRIPDATA WHERE _source_file = '{nom_fichier}';"
+        hook.run(requete_delete)
+        print("Anciennes données du mois supprimées (idempotence).")
 
         requete_copy = f"""
         COPY INTO NYC_TAXI.RAW.YELLOW_TRIPDATA
@@ -86,6 +91,7 @@ def pipeline_chargement():
             FROM @NYC_TAXI.RAW.raw_stage/{nom_fichier}
         )
         FILE_FORMAT = NYC_TAXI.RAW.format_parquet
+        FORCE = TRUE
         """
         hook.run(requete_copy)
         print("Données ingérées dans la table RAW.YELLOW_TRIPDATA.")
@@ -163,8 +169,7 @@ def pipeline_chargement():
             task_id="dim_date",
             conn_id="snowflake_nyc_taxi",
             sql="include/sql/marts/dim_date.sql",
-            params={"start_month": "2025-01-01", "end_month": "2025-04-01"},
-            split_statements=True,
+            params={"start_month": "2025-01-01", "end_month": "2025-04-01"}
         )
         dim_payment_type = SQLExecuteQueryOperator(task_id="dim_payment_type", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/dim_payment_type.sql")
         dim_rate_code = SQLExecuteQueryOperator(task_id="dim_rate_code", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/dim_rate_code.sql")
@@ -178,9 +183,9 @@ def pipeline_chargement():
             split_statements=True
         )
         
-        mart_daily_revenue = SQLExecuteQueryOperator(task_id="mart_daily_revenue", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_daily_revenue.sql", split_statements=True)
-        mart_data_quality = SQLExecuteQueryOperator(task_id="mart_data_quality", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_data_quality.sql", split_statements=True)
-        mart_zone_hourly_demand = SQLExecuteQueryOperator(task_id="mart_zone_hourly_demand", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_zone_hourly_demand.sql", split_statements=True)
+        mart_daily_revenue = SQLExecuteQueryOperator(task_id="mart_daily_revenue", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_daily_revenue.sql")
+        mart_data_quality = SQLExecuteQueryOperator(task_id="mart_data_quality", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_data_quality.sql")
+        mart_zone_hourly_demand = SQLExecuteQueryOperator(task_id="mart_zone_hourly_demand", conn_id="snowflake_nyc_taxi", sql="include/sql/marts/mart_zone_hourly_demand.sql")
 
         [dim_date, dim_payment_type, dim_rate_code, dim_vendor, dim_zone] >> fct_trips
         fct_trips >> [mart_daily_revenue, mart_data_quality, mart_zone_hourly_demand]
