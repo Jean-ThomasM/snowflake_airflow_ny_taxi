@@ -41,8 +41,6 @@ _(À remplir après avoir exécuté la requête ci-dessus dans Snowflake !)_
 
 ## Ce qu'il faut en retenir
 
-_(À rédiger après avoir vu les résultats. Exemples d'idées :)_
-
 1. La majorité des trajets sont concentrés sur quelques zones clés de Manhattan (ex: Upper East Side, Midtown) pendant les heures de pointe du soir.
 2. La carte de crédit est de loin le mode de paiement dominant sur ces trajets très demandés.
 3. Le revenu moyen par trajet varie fortement, avec des pics potentiellement liés aux forfaits aéroportuaires ou à la congestion.
