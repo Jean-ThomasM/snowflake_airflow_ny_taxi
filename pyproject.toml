@@ -1,0 +1,22 @@
+[project]
+name = "snowflake-airflow-ny-taxi"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jean-Thomas Miquelot", email = "miquelot.jeanthomas@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "cryptography>=50.0.2",
+    "dotenv>=0.9.9",
+    "requests>=2.34.2",
+    "snowflake-connector-python>=4.8.0",
+]
+
+[project.scripts]
+snowflake-airflow-ny-taxi = "snowflake_airflow_ny_taxi:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"

@@ -1,0 +1,7 @@
+STATUS,NB_ROWS,PCT_OF_FILE
+valid,3251337,93.558
+amount_non_positive,130112,3.744
+distance_out_of_range,90327,2.599
+duration_non_positive,2051,0.059
+duration_too_long,1377,0.040
+pickup_outside_file_month,22,0.001
